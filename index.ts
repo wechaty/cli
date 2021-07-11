@@ -23,7 +23,7 @@ function onScan (qrcode: string, status: ScanStatus, logElement: contrib.Widgets
   }
 }
 
-async function onLogin(user: Contact, logElement: any) {
+function onLogin(user: Contact, logElement: any) {
     logElement.setContent('')
     logElement.log(`${user.name()} login`)
     bot.say('Wechaty login!').catch(console.error)
@@ -36,12 +36,12 @@ async function onReady(logElement: contrib.Widgets.LogElement) {
     screen.render()
 }
 
-async function onMessage(message: Message, logElement: contrib.Widgets.LogElement) {
+function onMessage(message: Message, logElement: contrib.Widgets.LogElement) {
     logElement.log(message.toString());
 }
 
 
-async function startBot(bot: Wechaty, logElement: any) {
+function startBot(bot: Wechaty, logElement: any) {
   logElement.log('Initing...')
   bot
   .on('logout', (user) => onLogout(user, logElement))
@@ -52,31 +52,39 @@ async function startBot(bot: Wechaty, logElement: any) {
   .on('error', async e => {
     logElement.log(`error: ${e}`)
     if (bot.logonoff()) {
-      await bot.say('Wechaty error: ' + e.message).catch(console.error)
+      bot.say('Wechaty error: ' + e.message).catch(console.error)
     }
-    await bot.stop()
+    bot.stop()
   })
 
-  await bot.start()
+  bot.start()
   .catch(async e => {
     logElement.log(`start() fail: ${e}`)
-    await bot.stop()
+    bot.stop()
     process.exit(-1)
   })
 }
 
 async function showContacts(bot: Wechaty) {
-  let j = 0;
   const contactList = await bot.Contact.findAll();
   msgConsole.log(`Totally ${contactList.length} contacts`);
   for (let i = 0; i < contactList.length; i++) {
-    leftPanel.add(contactList[i].name());
+    const contact = contactList[i];
+    let alias = await contact.alias();
+    alias = alias?`(${alias})`:''
+    leftPanel.add(contact.name() + alias)
   }
+  const roomList = await bot.Room.findAll();
+  for (let i = 0; i < roomList.length; i++) {
+    const room = roomList[i];
+    leftPanel.add(await room.topic() || room.id)
+  }
+  leftPanel.screen.render();
 }
 
 async function main() {
-  await startBot(bot, msgConsole)
-  await screen.render()
+  startBot(bot, msgConsole)
+  screen.render()
 }
 
 main();
