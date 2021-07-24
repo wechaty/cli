@@ -1,9 +1,13 @@
+import { join } from 'path'
+import { mkdirSync } from 'fs'
 import { Contact, Message, ScanStatus, Wechaty } from 'wechaty'
 import { generate } from 'qrcode-terminal'
 import { screen, msgConsole, leftPanel } from './src/main'
-import * as contrib from 'blessed-contrib';
+import * as blessed from 'blessed'
+import * as contrib from 'blessed-contrib'
 
 const bot = new Wechaty()
+const filePath = join('data', 'files')
 
 function onLogout (user: Contact, logElement: any) {
   logElement.log('StarterBot', '%s logout', user)
@@ -32,12 +36,22 @@ function onLogin(user: Contact, logElement: any) {
 
 async function onReady(logElement: contrib.Widgets.LogElement) {
     bot.say('Wechaty ready!').catch(console.error)
-    await showContacts(bot);
+    await showContacts(bot)
     screen.render()
 }
 
-function onMessage(message: Message, logElement: contrib.Widgets.LogElement) {
-    logElement.log(message.toString());
+async function onMessage(message: Message, logElement: contrib.Widgets.LogElement) {
+  const type = message.type()
+  logElement.log(message.toString())
+  if (type != Message.Type.Text) {
+      const file = await message.toFileBox()
+      const folder = join(filePath, bot.userSelf().name())
+      mkdirSync(folder, {recursive: true})
+      const name = join(folder, file.name)
+      await file.toFile(name)
+      logElement.log('Save file to: ' + name)
+  }
+  screen.render()
 }
 
 
@@ -66,20 +80,20 @@ function startBot(bot: Wechaty, logElement: any) {
 }
 
 async function showContacts(bot: Wechaty) {
-  const contactList = await bot.Contact.findAll();
-  msgConsole.log(`Totally ${contactList.length} contacts`);
+  const contactList = await bot.Contact.findAll()
+  msgConsole.log(`Totally ${contactList.length} contacts`)
   for (let i = 0; i < contactList.length; i++) {
-    const contact = contactList[i];
-    let alias = await contact.alias();
+    const contact = contactList[i]
+    let alias = await contact.alias()
     alias = alias?`(${alias})`:''
     leftPanel.add(contact.name() + alias)
   }
-  const roomList = await bot.Room.findAll();
+  const roomList = await bot.Room.findAll()
   for (let i = 0; i < roomList.length; i++) {
-    const room = roomList[i];
+    const room = roomList[i]
     leftPanel.add(await room.topic() || room.id)
   }
-  leftPanel.screen.render();
+  leftPanel.render()
 }
 
 async function main() {
@@ -87,4 +101,4 @@ async function main() {
   screen.render()
 }
 
-main();
+main()
