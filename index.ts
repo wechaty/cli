@@ -1,6 +1,6 @@
 import { join } from 'path'
 import { mkdirSync } from 'fs'
-import { Contact, Message, ScanStatus, Wechaty } from 'wechaty'
+import { Contact, Message, Room, ScanStatus, Wechaty } from 'wechaty'
 import { generate } from 'qrcode-terminal'
 import { screen, msgConsole, leftPanel } from './src/main'
 import * as blessed from 'blessed'
@@ -8,6 +8,14 @@ import * as contrib from 'blessed-contrib'
 
 const bot = new Wechaty()
 const filePath = join('data', 'files')
+
+// name must be unique
+let contactList: Array<Contact>
+let friendList: Array<Contact>
+let roomList: Array<Room>
+let contactMap = new Map()
+let roomMap = new Map()
+let msgStore = new Map()
 
 function onLogout (user: Contact, logElement: any) {
   logElement.log('StarterBot', '%s logout', user)
@@ -36,13 +44,34 @@ function onLogin(user: Contact, logElement: any) {
 
 async function onReady(logElement: contrib.Widgets.LogElement) {
     bot.say('Wechaty ready!').catch(console.error)
-    await showContacts(bot)
+    contactList = await bot.Contact.findAll()
+    friendList = contactList.filter(x => x.type() !== Contact.Type.Official)
+    // contactMap = friendList.reduce(async (acc, friend) => {
+    //   const key = await friend.alias() || friend.name()
+    //   return acc.set(key, friend);
+    // }, contactMap)
+    for (const friend of contactList) {
+      const key = await friend.alias() || friend.name()
+      contactMap.set(key.toString(), friend)
+    }
+    leftPanel.setItems([...contactMap.keys()])
+    msgConsole.log(`Totally ${friendList.length} friends`)
+    const roomList = await bot.Room.findAll()
+    for (const room of roomList) {
+      const key = await room.topic() || room.id
+      roomMap.set(key, room)
+    }
+    msgConsole.log(`Totally ${roomList.length} rooms`)
+    leftPanel.setItems([...roomMap.keys()])
     screen.render()
+    leftPanel.focus()
 }
 
 async function onMessage(message: Message, logElement: contrib.Widgets.LogElement) {
   const type = message.type()
   logElement.log(message.toString())
+  const talker = message.talker()
+  msgStore.set(talker, message)
   if (type != Message.Type.Text) {
       const file = await message.toFileBox()
       const folder = join(filePath, bot.userSelf().name())
@@ -77,23 +106,6 @@ function startBot(bot: Wechaty, logElement: any) {
     bot.stop()
     process.exit(-1)
   })
-}
-
-async function showContacts(bot: Wechaty) {
-  const contactList = await bot.Contact.findAll()
-  msgConsole.log(`Totally ${contactList.length} contacts`)
-  for (let i = 0; i < contactList.length; i++) {
-    const contact = contactList[i]
-    let alias = await contact.alias()
-    alias = alias?`(${alias})`:''
-    leftPanel.add(contact.name() + alias)
-  }
-  const roomList = await bot.Room.findAll()
-  for (let i = 0; i < roomList.length; i++) {
-    const room = roomList[i]
-    leftPanel.add(await room.topic() || room.id)
-  }
-  leftPanel.render()
 }
 
 async function main() {
