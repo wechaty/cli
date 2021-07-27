@@ -13,9 +13,9 @@ const filePath = join('data', 'files')
 let contactList: Array<Contact>
 let friendList: Array<Contact>
 let roomList: Array<Room>
-let contactMap = new Map()
-let roomMap = new Map()
-let msgStore = new Map()
+let contactByName = new Map()
+let roomByName = new Map()
+let msgByContact  = new Map()
 
 function onLogout (user: Contact, logElement: any) {
   logElement.log('StarterBot', '%s logout', user)
@@ -46,23 +46,23 @@ async function onReady(logElement: contrib.Widgets.LogElement) {
     bot.say('Wechaty ready!').catch(console.error)
     contactList = await bot.Contact.findAll()
     friendList = contactList.filter(x => x.type() !== Contact.Type.Official)
-    // contactMap = friendList.reduce(async (acc, friend) => {
+    // contactByName = friendList.reduce(async (acc, friend) => {
     //   const key = await friend.alias() || friend.name()
     //   return acc.set(key, friend);
-    // }, contactMap)
+    // }, contactByName)
     for (const friend of contactList) {
       const key = await friend.alias() || friend.name()
-      contactMap.set(key.toString(), friend)
+      contactByName.set(key.toString(), friend)
     }
-    leftPanel.setItems([...contactMap.keys()])
+    leftPanel.setItems([...contactByName.keys()])
     msgConsole.log(`Totally ${friendList.length} friends`)
-    const roomList = await bot.Room.findAll()
+    roomList = await bot.Room.findAll()
     for (const room of roomList) {
       const key = await room.topic() || room.id
-      roomMap.set(key, room)
+      roomByName.set(key, room)
     }
     msgConsole.log(`Totally ${roomList.length} rooms`)
-    leftPanel.setItems([...roomMap.keys()])
+    leftPanel.setItems([...roomByName.keys()])
     screen.render()
     leftPanel.focus()
 }
@@ -71,7 +71,7 @@ async function onMessage(message: Message, logElement: contrib.Widgets.LogElemen
   const type = message.type()
   logElement.log(message.toString())
   const talker = message.talker()
-  msgStore.set(talker, message)
+  msgByContact.set(talker, message)
   if (type != Message.Type.Text) {
       const file = await message.toFileBox()
       const folder = join(filePath, bot.userSelf().name())
