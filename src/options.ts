@@ -3,6 +3,7 @@ export const screenOption = {
   useBCE: true,
   autoPadding: true,
   dockBorders: true,
+  forceUnicode: true,
   fullUnicode: true,
   sendFocus: true,
   warnings: true

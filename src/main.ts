@@ -15,7 +15,7 @@ const prompt = blessed.prompt({
 
 const grid = new contrib.grid({rows: 12, cols: 12, screen: screen})
 
-const leftPanel = grid.set(0, 0, 12, 3, blessed.list, {
+const leftPanel: blessed.Widgets.ListElement = grid.set(0, 0, 12, 3, blessed.list, {
   label: 'Contact List',
   ...scrollOption,
   style: listStyle,
@@ -28,16 +28,16 @@ const leftPanel = grid.set(0, 0, 12, 3, blessed.list, {
   }
 })
 
-const msgConsole = grid.set(0, 3, 12, 6, contrib.log, {
+const msgConsole: blessed.Widgets.Log = grid.set(0, 3, 12, 7, blessed.log, {
   fg: 'green',
   selectedFg: 'green',
   label: 'Messages',
   ...scrollOption
 })
-const rightPanel = grid.set(0, 9, 12, 3, blessed.list, {label: 'Options'})
+const rightPanel = grid.set(0, 10, 12, 2, blessed.list, {label: 'Options'})
 
-screen.key(['escape', 'C-c', 'C-d'], function(ch, key) {
+screen.key(['C-c', 'C-d'], function(ch, key) {
   return process.exit(0);
 });
 
-export { screen, grid, msgConsole, leftPanel }
+export { screen, grid, msgConsole, leftPanel, rightPanel }
