@@ -3,26 +3,27 @@ import { mkdirSync } from 'fs'
 import { Contact, Message, Room, ScanStatus, Wechaty } from 'wechaty'
 import { generate } from 'qrcode-terminal'
 import { screen, msgConsole, leftPanel, rightPanel } from './src/main'
+import { TreeNode, TreeChildren } from './src/interfaces'
 import * as blessed from 'blessed'
 import * as contrib from 'blessed-contrib'
 
 const bot = new Wechaty({name: 'test'})
 const filePath = join('data', 'files')
 
-// name must be unique
-let contactList: Array<Contact>
-let friendList: Array<Contact>
-let roomList: Array<Room>
-let friendByName: Map<string, Contact> = new Map()
-let roomByName: Map<string, Room> = new Map()
-let msgByName: Map<string, Array<Message>>  = new Map()
+
+let contacts: Array<Contact>
+let friends: Array<Contact>
+let rooms: Array<Room>
+let nameOf: Map<Contact | Room, string> = new Map()
+let messagesOf: Map<Contact | Room, Message[]> = new Map()
 let membersByRoom: Map<Room, Contact[]> = new Map()
+let friendRecord: TreeChildren = {}
+let roomRecord: TreeChildren = {}
+let friendRoot: TreeNode
+let roomRoot: TreeNode
+let panelRoot: TreeNode
 
-function toBlessedText (s: string, p: blessed.Widgets.Node) {
-  return blessed.text({parent: p, content: s})
-}
-
-async function getKey(s: Contact | Room) {
+async function displayed(s: Contact | Room) {
   if (s instanceof Contact) {
     return await s.alias() || s.name() || s.id
   } else {
@@ -36,7 +37,7 @@ function onLogout (user: Contact, logElement: any) {
 
 function onScan (qrcode: string, status: ScanStatus, logElement: contrib.Widgets.LogElement) {
   if (status === ScanStatus.Waiting || status === ScanStatus.Timeout) {
-    generate(qrcode, { small: true }, (asciiart: string) => logElement.setContent(asciiart))
+    generate(qrcode, { small: true }, (asciiart: string) => logElement.add(asciiart))
     logElement.log('Scan QR Code to login, status:' + ScanStatus[status])
     const qrcodeImageUrl = [
       'https://wechaty.js.org/qrcode/',
@@ -52,35 +53,68 @@ function onLogin(user: Contact, logElement: any) {
     logElement.setContent('')
     logElement.log(`${user.name()} login`)
     bot.say('Wechaty login!').catch(console.error)
-    logElement.setLabel(logElement._label.content + ' - ' + user.name())
+    // logElement.setLabel(logElement._label.content + ' - ' + user.name())
 }
 
 // when login complete, get all friend/room then display on the leftPanel
 async function onReady(logElement: contrib.Widgets.LogElement) {
     bot.say('Wechaty ready!').catch(console.error)
 
-    contactList = await bot.Contact.findAll()
-    friendList = contactList.filter(x => x.type() !== Contact.Type.Official)
-    await Promise.all(friendList.map(async f => friendByName.set(await getKey(f), f)));
-    [...friendByName.keys()].forEach(f => leftPanel.add(f))
-    msgConsole.log(`Totally ${friendList.length} friends`)
-    msgConsole.log(friendByName.size.toString())
+    contacts = await bot.Contact.findAll()
+    friends = contacts.filter(x => x.type() !== Contact.Type.Official)
+    for (const f of friends) {
+      const name = await displayed(f)
+      nameOf.set(f, name)
+      friendRecord[name!] = {
+        name: name,
+        extended: false,
+        real: f 
+      }
+    }
+    friendRoot = {
+      name: "Friends",
+      extended: true,
+      real: bot.userSelf(),
+      children: friendRecord
+    }
+    leftPanel.setData(friendRoot)
+    msgConsole.log(`Totally ${friends.length} friends`)
 
-    roomList = await bot.Room.findAll()
-    await Promise.all(roomList.map(async f => roomByName.set(await getKey(f), f)));
-    [...roomByName.keys()].forEach(r => leftPanel.add(r))
-    msgConsole.log(`Totally ${roomList.length} rooms`);
-    msgConsole.log(roomByName.size.toString())
+    rooms = await bot.Room.findAll();
+    for (const r of rooms) {
+      const name = await displayed(r)
+      nameOf.set(r, name)
+      roomRecord[name] = {
+        name: name,
+        extended: false,
+        real: r 
+      }
+    }
+    roomRoot = {
+      name: "Rooms",
+      extended: true,
+      real: bot.userSelf(),
+      children: roomRecord
+    }
+    panelRoot = {
+      name: bot.userSelf().name(),
+      extended: true,
+      children: {"Friends": friendRoot, "Rooms": roomRoot}
+    }
+    leftPanel.setData(panelRoot)
+    msgConsole.log(`Totally ${rooms.length} rooms`);
+  
+    // TO DO: Fix crash
+    // leftPanel.focus()
     screen.render()
 }
 
 async function onMessage(message: Message, logElement: contrib.Widgets.LogElement) {
   const type = message.type()
   logElement.log(message.toString())
-  const source = message.room() || message.talker()
-  const k = await getKey(source)
-  if (!msgByName.has(k)) msgByName.set(k,[])
-  msgByName.get(k)!.push(message)
+  const k = message.room() || message.talker()
+  if (!messagesOf.has(k)) messagesOf.set(k,[])
+  messagesOf.get(k)!.push(message)
   if (type != Message.Type.Text) {
       const file = await message.toFileBox()
       const folder = join(filePath, bot.userSelf().name())
@@ -117,38 +151,11 @@ function startBot(bot: Wechaty, logElement: any) {
   })
 }
 
-leftPanel.on('select item', async (item, index) => {
-  const name = item.getContent().trim()
+leftPanel.on('select', (node: contrib.Widgets.TreeNode, index) => {
+  const name = node.name
   msgConsole.setContent('')
   rightPanel.setContent('')
-  const msgs = msgByName.get(name) || ['No message!']
-  msgs.forEach(m => msgConsole.add(m.toString()))
-  const source: Contact | Room | undefined = friendByName.get(name) || roomByName.get(name)
-  msgConsole.log(name)
-  msgConsole.log(friendByName.has(name).toString())
-  msgConsole.log(roomByName.has(name).toString())
-  if(source === undefined) {  // 所有中文字符都失败
-    msgConsole.log('error: source no found')
-    // click '李涵' to test a specified name
-    msgConsole.log('李涵')
-    msgConsole.log(`name == '李涵' ${name == '李涵'}`) // false! although they are displayed the same
-    msgConsole.log(`friendByName.has('李涵') ${friendByName.has('李涵')}`)  
-    // Array.from(friendByName.keys()).forEach(s => msgConsole.log(s))
-  } else {
-    msgConsole.log(await getKey(source))
-  }
-  if (source instanceof Room) {
-    if(membersByRoom.has(source)) membersByRoom.set(source, await source.memberAll())
-    const members = membersByRoom.get(source)
-    rightPanel.setitems(members?.map(m => getKey(m)))
-  }
-})
-
-leftPanel.on('cancel item', (item, index) => {
-  const name = item.getText()
-  msgConsole.setContent('')
-  msgConsole.log(name + 'cancel')
-  const msgs = [...msgByName.values()].forEach(m => msgConsole.add(m.toString()))
+  msgConsole.log(name || 'not found')
 })
 
 async function main() {

@@ -23,7 +23,7 @@ export const listStyle = {
 
 export const navigateOption = {
   mouse: true,
-  keys: true,
+  keys: true,  // conflict with TreeElement keys: string[]
   vi: true
 }
 
@@ -39,5 +39,4 @@ export const scrollOption = {
       inverse: true
     }
   },
-  ...navigateOption
 }
