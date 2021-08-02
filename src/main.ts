@@ -10,6 +10,7 @@ import {
 const screen = blessed.screen(screenOption)
 screen.title = 'wechaty-cli'
 
+// eslint-disable-next-line new-cap
 const grid = new contrib.grid({
   cols: 12,
   rows: 12,
@@ -34,7 +35,7 @@ const msgConsole: contrib.Widgets.LogElement = grid.set(0, 3, 12, 7, blessed.log
 
 const rightPanel = grid.set(0, 10, 12, 2, contrib.tree, { label: 'Options' })
 
-screen.key(['escape', 'C-c', 'C-d'], function (ch, key) {
+screen.key(['escape', 'C-c', 'C-d'], () => {
   return process.exit(0)
 })
 

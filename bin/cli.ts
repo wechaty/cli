@@ -152,7 +152,7 @@ function startBot (bot: Wechaty, logElement: any) {
     })
 }
 
-leftPanel.on('select', (node: contrib.Widgets.TreeNode, index) => {
+leftPanel.on('select', (node: contrib.Widgets.TreeNode) => {
   const name = node.name
   msgConsole.setContent('')
   rightPanel.setContent('')
