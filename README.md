@@ -14,10 +14,14 @@ Terminal Command Line Client (CLI) for Wechaty
 ### Install from source
 
 ```sh
-git clone https://github.com/wechaty/wechaty-cli.git
+git clone https://github.com/wechaty/cli.git wechaty-cli
 cd wechaty-cli
 npm start
 ```
+
+### Debug in VS Code
+
+First run `npm run debug` in terminal, then run VS Code debugger with F5
 
 ## Resources
 

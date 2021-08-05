@@ -13,6 +13,7 @@
   "scripts": {
     "clean": "shx rm -fr dist/*",
     "dist": "npm run clean && tsc",
+    "debug": "node --nolazy --inspect-brk=9229 -r ts-node/register bin/cli.ts",
     "pack": "npm pack",
     "start": "ts-node bin/cli.ts",
     "lint": "npm run lint:es && npm run lint:ts && npm run lint:md",
@@ -32,7 +33,7 @@
   "dependencies": {
     "@types/blessed": "^0.1.19",
     "blessed": "^0.1.81",
-    "blessed-contrib": "^4.8.21",
+    "blessed-contrib": "github:chinggg/blessed-contrib",
     "qrcode-terminal": "^0.12.0",
     "wechaty": "^0.62.3"
   },
