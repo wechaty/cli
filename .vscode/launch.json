@@ -7,12 +7,12 @@
 		{
             "name": "Attach",
             "request": "attach",
-            "type": "node",
+            "type": "pwa-node",
             "port": 9229,
-			"resolveSourceMapLocations": [
-				"${workspaceFolder}/**",
-				"!**/node_modules/**"
-			]
+			// "resolveSourceMapLocations": [
+			// 	"${workspaceFolder}/**",
+			// 	"!**/node_modules/**"
+			// ]
         }
 	]
 }
