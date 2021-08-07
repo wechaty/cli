@@ -19,7 +19,7 @@ const grid = new contrib.grid({
 
 const leftPanel: contrib.Widgets.TreeElement = grid.set(0, 0, 12, 3, contrib.tree, {
   label: 'Contact List',
-  ...scrollOption,
+  // ...scrollOption,
   mouse: true,
   style: listStyle,
   vi: true,

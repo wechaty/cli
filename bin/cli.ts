@@ -57,7 +57,7 @@ function onLogin (user: Contact, logElement: any) {
 }
 
 // when login complete, get all friend/room then display on the leftPanel
-async function onReady(_logElement: contrib.Widgets.LogElement) {
+async function onReady(logElement: contrib.Widgets.LogElement) {
   bot.say('Wechaty ready!').catch(console.error)
 
   contacts = await bot.Contact.findAll()
@@ -78,7 +78,7 @@ async function onReady(_logElement: contrib.Widgets.LogElement) {
     children: friendRecord
   }
   leftPanel.setData(friendRoot)
-  msgConsole.log(`Totally ${friends.length} friends`)
+  logElement.log(`Totally ${friends.length} friends`)
 
   rooms = await bot.Room.findAll();
   for (const r of rooms) {
@@ -102,10 +102,9 @@ async function onReady(_logElement: contrib.Widgets.LogElement) {
     children: {'Friends': friendRoot, 'Rooms': roomRoot}
   }
   leftPanel.setData(panelRoot)
-  msgConsole.log(`Totally ${rooms.length} rooms`);
+  logElement.log(`Totally ${rooms.length} rooms`);
 
-  // TO DO: Fix crash
-  // leftPanel.focus()
+  leftPanel.focus()
   screen.render()
 }
 
