@@ -152,10 +152,16 @@ function startBot (bot: Wechaty, logElement: any) {
 }
 
 leftPanel.on('select', (node: contrib.Widgets.TreeNode) => {
-  const name = node.name
-  msgConsole.setContent('')
+  const real = node.real
+  const messages = messagesOf.get(real) || []
+  msgConsole.setLabel(node.name || 'not found')
+  msgConsole.setContent(`You have ${messages.length} messages with ${node.name}`)
   rightPanel.setContent('')
-  msgConsole.log(name || 'not found')
+  messages.forEach(m => msgConsole.log(m.toString()))
+  if (real instanceof Room) {
+    // if (membersByRoom.has(real)) membersByRoom.set(real, await real.memberAll())
+    // const members = membersByRoom.get(real)
+  }
 })
 
 async function main() {
