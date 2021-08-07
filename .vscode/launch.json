@@ -5,14 +5,39 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+			"name": "Launch via NPM",
+			"request": "launch",
+			"runtimeArgs": [
+				"start",
+			],
+			"runtimeExecutable": "npm",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"type": "pwa-node",
+			"console": "integratedTerminal",
+		},
+		{
             "name": "Attach",
             "request": "attach",
-            "type": "pwa-node",
             "port": 9229,
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+            "type": "pwa-node",
 			// "resolveSourceMapLocations": [
 			// 	"${workspaceFolder}/**",
 			// 	"!**/node_modules/**"
 			// ]
-        }
+        },
+		{
+			"name": "Attach by Process ID",
+			"processId": "${command:PickProcess}",
+			"request": "attach",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"type": "pwa-node"
+		},
 	]
 }

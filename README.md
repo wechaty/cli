@@ -21,7 +21,9 @@ npm start
 
 ### Debug in VS Code
 
-First run `npm run debug` in terminal, then run VS Code debugger with F5
+Debugging with configuration "Launch via NPM", the app will run immediately in the integrated terminal.
+
+To test the app in external terminal, run `npm run debug` then start debugging with configuration "Attach".
 
 ## Resources
 
