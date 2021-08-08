@@ -1,3 +1,4 @@
+#!/usr/bin/env ts-node
 import { join } from 'path'
 import { mkdirSync } from 'fs'
 import { Contact, Message, Room, ScanStatus, Wechaty } from 'wechaty'
