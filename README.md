@@ -19,6 +19,15 @@ cd wechaty-cli
 npm start
 ```
 
+### Build from Dockerfile
+
+```sh
+git clone https://github.com/wechaty/cli.git wechaty-cli
+cd wechaty-cli
+docker build -t wechaty-cli .  # this command needs only to be executed once
+docker run --rm -it wechaty-cli  # use this command to run wechaty-cli at any time!
+```
+
 ### Debug in VS Code
 
 Debugging with configuration "Launch via NPM", the app will run immediately in the integrated terminal.
