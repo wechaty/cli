@@ -18,6 +18,17 @@
 			"console": "integratedTerminal",
 		},
 		{
+			"name": "Launch Program in external Terminal",
+			"runtimeExecutable": "ts-node",
+			"program": "${workspaceFolder}/bin/cli.ts",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"type": "pwa-node",
+			"console": "externalTerminal"
+		},
+		{
             "name": "Attach",
             "request": "attach",
             "port": 9229,

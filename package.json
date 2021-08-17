@@ -1,6 +1,6 @@
 {
   "name": "wechaty-cli",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Command-line Client for Wechaty, powered by blessed",
   "main": "dist/src/mod.js",
   "typings": "dist/src/mod.d.ts",
@@ -24,12 +24,26 @@
     "test:pack": "bash -x scripts/npm-pack-testing.sh",
     "test:unit": "blue-tape -r ts-node/register 'src/**/*.spec.ts' 'tests/**/*.spec.ts'"
   },
+  "files": [
+    "bin/",
+    "dist/",
+    "src/",
+    "docs/images/terminal-wechaty.webp"
+  ],
+  "repositry": {
+    "type": "git",
+    "url": "git+https://github.com/wechaty/cli.git"
+  },
   "keywords": [
     "wechaty",
     "token"
   ],
   "author": "chinggg",
   "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/wechaty/cli/issues"
+  },
+  "homepage": "https://github.com/wechaty/cli#readme",
   "dependencies": {
     "@types/blessed": "^0.1.19",
     "blessed": "^0.1.81",
