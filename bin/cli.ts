@@ -23,7 +23,7 @@ let friendRoot: TreeNode
 let roomRoot: TreeNode
 let panelRoot: TreeNode
 
-async function displayed(s: Contact | Room) {
+async function displayed (s: Contact | Room) {
   if (s instanceof Contact) {
     return await s.alias() || s.name() || s.id
   } else {
@@ -58,7 +58,7 @@ function onLogin (user: Contact, logElement: any) {
 }
 
 // when login complete, get all friend/room then display on the leftPanel
-async function onReady(logElement: contrib.Widgets.LogElement) {
+async function onReady (logElement: contrib.Widgets.LogElement) {
   bot.say('Wechaty ready!').catch(console.error)
 
   contacts = await bot.Contact.findAll()
@@ -67,58 +67,58 @@ async function onReady(logElement: contrib.Widgets.LogElement) {
     const name = await displayed(f)
     nameOf.set(f, name)
     friendRecord[name!] = {
-      name: name,
       extended: false,
+      name: name,
       real: f,
     }
   }
   friendRoot = {
-    name: 'Friends',
+    children: friendRecord,
     extended: true,
+    name: 'Friends',
     real: bot.userSelf(),
-    children: friendRecord
   }
   leftPanel.setData(friendRoot)
   logElement.log(`Totally ${friends.length} friends`)
 
-  rooms = await bot.Room.findAll();
+  rooms = await bot.Room.findAll()
   for (const r of rooms) {
     const name = await displayed(r)
     nameOf.set(r, name)
     roomRecord[name] = {
-      name: name,
       extended: false,
-      real: r
+      name: name,
+      real: r,
     }
   }
   roomRoot = {
-    name: 'Rooms',
+    children: roomRecord,
     extended: true,
+    name: 'Rooms',
     real: bot.userSelf(),
-    children: roomRecord
   }
   panelRoot = {
-    name: bot.userSelf().name(),
+    children: { Friends: friendRoot, Rooms: roomRoot },
     extended: true,
-    children: {'Friends': friendRoot, 'Rooms': roomRoot}
+    name: bot.userSelf().name(),
   }
   leftPanel.setData(panelRoot)
-  logElement.log(`Totally ${rooms.length} rooms`);
+  logElement.log(`Totally ${rooms.length} rooms`)
 
   leftPanel.focus()
   screen.render()
 }
 
-async function onMessage(message: Message, logElement: contrib.Widgets.LogElement) {
+async function onMessage (message: Message, logElement: contrib.Widgets.LogElement) {
   const type = message.type()
   logElement.log(message.toString())
   const k = message.room() || message.talker()
-  if (!messagesOf.has(k)) messagesOf.set(k,[])
+  if (!messagesOf.has(k)) messagesOf.set(k, [])
   messagesOf.get(k)!.push(message)
-  if (type != Message.Type.Text) {
+  if (type !== Message.Type.Text) {
     const file = await message.toFileBox()
     const folder = join(filePath, bot.userSelf().name())
-    mkdirSync(folder, {recursive: true})
+    mkdirSync(folder, { recursive: true })
     const name = join(folder, file.name)
     await file.toFile(name)
     logElement.log('Save file to: ' + name)
@@ -159,7 +159,7 @@ leftPanel.on('select', (node: contrib.Widgets.TreeNode) => {
   msgConsole.log(name || 'not found')
 })
 
-async function main() {
+async function main () {
   startBot(bot, msgConsole)
   screen.render()
 }
