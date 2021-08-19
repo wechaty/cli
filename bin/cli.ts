@@ -1,168 +1,69 @@
-#!/usr/bin/env ts-node
-import { join } from 'path'
-import { mkdirSync } from 'fs'
-import { Contact, Message, Room, ScanStatus, Wechaty } from 'wechaty'
-import { generate } from 'qrcode-terminal'
-import { screen, msgConsole, leftPanel, rightPanel } from '../src/main'
-import { TreeNode, TreeChildren } from '../src/interfaces'
-// import * as blessed from 'blessed'
-import * as contrib from 'blessed-contrib'
+#!/usr/bin/env node
 
-const bot = new Wechaty({ name: 'test' })
-const filePath = join('data', 'files')
+import path            from 'path'
+import { ArgumentParser }   from 'argparse'
+import updateNotifier  from 'update-notifier'
 
-let contacts: Array<Contact>
-let friends: Array<Contact>
-let rooms: Array<Room>
-const nameOf: Map<Contact | Room, string> = new Map()
-const messagesOf: Map<Contact | Room, Message[]> = new Map()
-// let membersByRoom: Map<Room, Contact[]> = new Map()
-const friendRecord: TreeChildren = {}
-const roomRecord: TreeChildren = {}
-let friendRoot: TreeNode
-let roomRoot: TreeNode
-let panelRoot: TreeNode
+import {
+  log,
+  MODULE_ROOT,
+  VERSION,
+}               from '../src/config'
 
-async function displayed (s: Contact | Room) {
-  if (s instanceof Contact) {
-    return await s.alias() || s.name() || s.id
-  } else {
-    return await s.topic() || s.id
-  }
+import { startBot } from '../src/index'
+
+function checkUpdate () {
+  const pkgFile   = path.join(MODULE_ROOT, 'package.json')
+  const pkg       = require(pkgFile)
+  const notifier  = updateNotifier({
+    pkg,
+    updateCheckInterval: 1000 * 60 * 60 * 24 * 7, // 1 week
+  })
+  notifier.notify()
 }
 
-function onLogout (user: Contact, logElement: any) {
-  logElement.log('StarterBot', '%s logout', user)
+async function main (args: any): Promise<number> {
+  log.level(args.log as any)
+  log.timestamp(false)
+
+  log.verbose('Manager', `Facenet v${VERSION}`)
+
+  checkUpdate()
+
+  try {
+    startBot(args)
+  } catch (e) {
+    log.error(e)
+    return 1
+  }
+  return 0
 }
 
-function onScan (qrcode: string, status: ScanStatus, logElement: contrib.Widgets.LogElement) {
-  if (status === ScanStatus.Waiting || status === ScanStatus.Timeout) {
-    generate(qrcode, { small: true }, (asciiart: string) => logElement.add(asciiart))
-    logElement.log('Scan QR Code to login, status:' + ScanStatus[status])
-    const qrcodeImageUrl = [
-      'https://wechaty.js.org/qrcode/',
-      encodeURIComponent(qrcode),
-    ].join('')
-    void qrcodeImageUrl
-    // logElement.log('StarterBot', 'onScan: %s(%s) - %s', ScanStatus[status], status, qrcodeImageUrl)
-  } else {
-    // logElement.log('StarterBot', 'onScan: %s(%s)', ScanStatus[status], status)
-  }
+function parseArguments () {
+  const parser = new ArgumentParser({
+    description : 'Wechaty CLI',
+  })
+
+  const version = VERSION
+  parser.add_argument('-v', '--version', { action: 'version', version })
+  parser.add_argument('-l', '--log',
+    {
+      default: 'info',
+      help: 'Log Level: silent, verbose, silly',
+    },
+  )
+  parser.add_argument('-n', '--name', { default: 'bot', help: 'name of bot instance' })
+  return parser.parse_args()
 }
 
-function onLogin (user: Contact, logElement: any) {
-  logElement.setContent('')
-  logElement.log(`${user.name()} login`)
-  bot.say('Wechaty login!').catch(console.error)
-  // logElement.setLabel(logElement._label.content + ' - ' + user.name())
-}
-
-// when login complete, get all friend/room then display on the leftPanel
-async function onReady (logElement: contrib.Widgets.LogElement) {
-  bot.say('Wechaty ready!').catch(console.error)
-
-  contacts = await bot.Contact.findAll()
-  friends = contacts.filter(x => x.type() !== Contact.Type.Official)
-  for (const f of friends) {
-    const name = await displayed(f)
-    nameOf.set(f, name)
-    friendRecord[name!] = {
-      extended: false,
-      name: name,
-      real: f,
-    }
-  }
-  friendRoot = {
-    children: friendRecord,
-    extended: true,
-    name: 'Friends',
-    real: bot.userSelf(),
-  }
-  leftPanel.setData(friendRoot)
-  logElement.log(`Totally ${friends.length} friends`)
-
-  rooms = await bot.Room.findAll()
-  for (const r of rooms) {
-    const name = await displayed(r)
-    nameOf.set(r, name)
-    roomRecord[name] = {
-      extended: false,
-      name: name,
-      real: r,
-    }
-  }
-  roomRoot = {
-    children: roomRecord,
-    extended: true,
-    name: 'Rooms',
-    real: bot.userSelf(),
-  }
-  panelRoot = {
-    children: { Friends: friendRoot, Rooms: roomRoot },
-    extended: true,
-    name: bot.userSelf().name(),
-  }
-  leftPanel.setData(panelRoot)
-  logElement.log(`Totally ${rooms.length} rooms`)
-
-  leftPanel.focus()
-  screen.render()
-}
-
-async function onMessage (message: Message, logElement: contrib.Widgets.LogElement) {
-  const type = message.type()
-  logElement.log(message.toString())
-  const k = message.room() || message.talker()
-  if (!messagesOf.has(k)) messagesOf.set(k, [])
-  messagesOf.get(k)!.push(message)
-  if (type !== Message.Type.Text) {
-    const file = await message.toFileBox()
-    const folder = join(filePath, bot.userSelf().name())
-    mkdirSync(folder, { recursive: true })
-    const name = join(folder, file.name)
-    await file.toFile(name)
-    logElement.log('Save file to: ' + name)
-  }
-  screen.render()
-}
-
-function startBot (bot: Wechaty, logElement: any) {
-  logElement.log('Initing...')
-  bot
-    .on('logout', (user) => onLogout(user, logElement))
-    .on('scan', (qrcode, status) => onScan(qrcode, status, logElement))
-    .on('login', (user) => onLogin(user, logElement))
-    .on('ready', () => onReady(logElement))
-    .on('message', (m) => onMessage(m, logElement))
-    .on('error', async e => {
-      logElement.log(`error: ${e}`)
-      if (bot.logonoff()) {
-        bot.say('Wechaty error: ' + e.message).catch(console.error)
-      }
-      bot.stop()
-        .catch(console.error)
-    })
-
-  bot.start()
-    .catch(async e => {
-      logElement.log(`start() fail: ${e}`)
-      // bot.stop()
-      //   .catch(console.error)
-      process.exit(-1)
-    })
-}
-
-leftPanel.on('select', (node: contrib.Widgets.TreeNode) => {
-  const name = node.name
-  msgConsole.setContent('')
-  rightPanel.setContent('')
-  msgConsole.log(name || 'not found')
+process.on('warning', (warning) => {
+  console.warn(warning.name)    // Print the warning name
+  console.warn(warning.message) // Print the warning message
+  console.warn(warning.stack)   // Print the stack trace
 })
 
-async function main () {
-  startBot(bot, msgConsole)
-  screen.render()
-}
-
-main()
-  .catch(console.error)
+main(parseArguments())
+  .catch(e => {
+    console.error(e)
+    process.exit(1)
+  })
