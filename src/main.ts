@@ -39,13 +39,6 @@ screen.key(['escape', 'C-c', 'C-d'], () => {
   return process.exit(0)
 })
 
-leftPanel.on('select', (node: contrib.Widgets.TreeNode) => {
-  const name = node.name
-  msgConsole.setContent('')
-  rightPanel.setContent('')
-  msgConsole.log(name || 'not found')
-})
-
 export {
   screen,
   grid,
