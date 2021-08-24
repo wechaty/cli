@@ -25,7 +25,7 @@ const leftPanel: contrib.Widgets.TreeElement = grid.set(0, 0, 12, 3, contrib.tre
   vi: true,
 })
 
-const msgConsole: contrib.Widgets.LogElement = grid.set(0, 3, 12, 7, blessed.log, {
+const msgConsole: contrib.Widgets.LogElement = grid.set(0, 3, 10, 7, blessed.log, {
   fg: 'green',
   label: 'Messages',
   selectedFg: 'green',
@@ -33,11 +33,23 @@ const msgConsole: contrib.Widgets.LogElement = grid.set(0, 3, 12, 7, blessed.log
   ...scrollOption,
 })
 
+const textArea: blessed.Widgets.TextareaElement = grid.set(10, 3, 2, 7, blessed.textarea, {
+  fg: 'blue',
+  inputOnFocus: true,
+  mouse: true,
+})
+
 const rightPanel = grid.set(0, 10, 12, 2, contrib.tree, { label: 'Options' })
 
-screen.key(['escape', 'C-c', 'C-d'], () => {
+screen.key(['C-c', 'C-d'], () => {
   return process.exit(0)
 })
+
+screen.key('tab', () => screen.focusNext())
+screen.key('S-tab', () => screen.focusPrevious())
+
+leftPanel.rows.on('click', () => leftPanel.focus())
+textArea.on('click', () => textArea.focus())
 
 export {
   screen,
@@ -45,4 +57,5 @@ export {
   msgConsole,
   leftPanel,
   rightPanel,
+  textArea,
 }

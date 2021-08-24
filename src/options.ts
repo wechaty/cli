@@ -3,6 +3,7 @@ export const screenOption = {
   dockBorders: true,
   forceUnicode: true,
   fullUnicode: true,
+  ignoreLocked: ['C-c', 'escape'],
   sendFocus: true,
   smartCSR: true,
   useBCE: true,
@@ -10,6 +11,9 @@ export const screenOption = {
 }
 
 export const listStyle = {
+  // focus: {
+  //   bg: 'red',
+  // },
   item: {
     hover: {
       bg: 'blue',
