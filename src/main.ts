@@ -45,7 +45,8 @@ screen.key(['C-c', 'C-d'], () => {
   return process.exit(0)
 })
 
-screen.key('tab', () => screen.focusNext())
+screen.key('tab', () => leftPanel.focus())
+screen.key('i', () => textArea.focus())
 screen.key('S-tab', () => screen.focusPrevious())
 
 leftPanel.rows.on('click', () => leftPanel.focus())
