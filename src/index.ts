@@ -3,23 +3,24 @@ import { join } from 'path'
 import { mkdirSync } from 'fs'
 import { Contact, Message, Room, ScanStatus, Wechaty } from 'wechaty'
 import { generate } from 'qrcode-terminal'
-import { screen, msgConsole, leftPanel } from './main'
+import { screen, msgConsole, leftPanel, rightPanel } from './main'
 import { TreeNode, TreeChildren } from './config'
 
 let bot: Wechaty
 const filePath = join('data', 'files')
 
-let contacts: Array<Contact>
-let friends: Array<Contact>
-let rooms: Array<Room>
+let contacts: Contact[]
+let friends: Contact[]
+let rooms: Room[]
+const messages: Message[] = []
 const nameOf: Map<Contact | Room, string> = new Map()
-const messagesOf: Map<Contact | Room, Message[]> = new Map()
-// let membersByRoom: Map<Room, Contact[]> = new Map()
-const friendRecord: TreeChildren = {}
-const roomRecord: TreeChildren = {}
+const membersByRoom: Map<Room, Contact[]> = new Map()
+let friendRecord: TreeChildren
+let roomRecord: TreeChildren
 let friendRoot: TreeNode
 let roomRoot: TreeNode
 let panelRoot: TreeNode
+let memberRoot: TreeNode
 
 async function displayed (s: Contact | Room) {
   if (s instanceof Contact) {
@@ -27,6 +28,20 @@ async function displayed (s: Contact | Room) {
   } else {
     return await s.topic() || s.id
   }
+}
+
+async function recordify (a: Contact[] | Room[]) {
+  const record: TreeChildren = {}
+  for (const x of a) {
+    if (!nameOf.has(x)) nameOf.set(x, await displayed(x))
+    const name = nameOf.get(x)
+    record[name!] = {
+      extended: false,
+      name: name,
+      real: x,
+    }
+  }
+  return record
 }
 
 function onLogout (user: Contact) {
@@ -60,15 +75,7 @@ async function onReady () {
 
   contacts = await bot.Contact.findAll()
   friends = contacts.filter(x => x.type() !== Contact.Type.Official)
-  for (const f of friends) {
-    const name = await displayed(f)
-    nameOf.set(f, name)
-    friendRecord[name!] = {
-      extended: false,
-      name: name,
-      real: f,
-    }
-  }
+  friendRecord = await recordify(friends)
   friendRoot = {
     children: friendRecord,
     extended: true,
@@ -79,15 +86,7 @@ async function onReady () {
   msgConsole.log(`Totally ${friends.length} friends`)
 
   rooms = await bot.Room.findAll()
-  for (const r of rooms) {
-    const name = await displayed(r)
-    nameOf.set(r, name)
-    roomRecord[name] = {
-      extended: false,
-      name: name,
-      real: r,
-    }
-  }
+  roomRecord = await recordify(rooms)
   roomRoot = {
     children: roomRecord,
     extended: true,
@@ -98,6 +97,7 @@ async function onReady () {
     children: { Friends: friendRoot, Rooms: roomRoot },
     extended: true,
     name: bot.userSelf().name(),
+    real: bot.userSelf(),
   }
   leftPanel.setData(panelRoot)
   msgConsole.log(`Totally ${rooms.length} rooms`)
@@ -109,9 +109,7 @@ async function onReady () {
 async function onMessage (message: Message) {
   const type = message.type()
   msgConsole.log(message.toString())
-  const k = message.room() || message.talker()
-  if (!messagesOf.has(k)) messagesOf.set(k, [])
-  messagesOf.get(k)!.push(message)
+  messages.push(message)
   if (type !== Message.Type.Text) {
     const file = await message.toFileBox()
     const folder = join(filePath, bot.userSelf().name())
@@ -150,3 +148,27 @@ export function startBot (args: any) {
 
   screen.render()
 }
+
+leftPanel.on('select', async (node: TreeNode) => {
+  const real = node.real
+  msgConsole.setContent(`与 ${node.name} 的对话`)
+  rightPanel.setContent('')
+  const msgs = messages.filter(m =>
+    (m.room() || m.talker()) === real || (m.room() || m.to()) === real
+  )
+  msgs.forEach(m => msgConsole.log(m.toString()))
+  if (real instanceof Room) {
+    if (!membersByRoom.has(real)) membersByRoom.set(real, await real.memberAll())
+    const members = membersByRoom.get(real)!
+    const memberRecord = await recordify(members)
+    memberRoot = {
+      children: memberRecord,
+      extended: true,
+      name: 'members',
+    }
+    rightPanel.setData(memberRoot)
+  } else {
+    rightPanel.setData({})
+  }
+  screen.render()
+})
