@@ -3,7 +3,7 @@ import { join } from 'path'
 import { mkdirSync } from 'fs'
 import { Contact, Message, Room, ScanStatus, Wechaty } from 'wechaty'
 import { generate } from 'qrcode-terminal'
-import { screen, msgConsole, leftPanel, rightPanel } from './main'
+import { screen, msgConsole, leftPanel, rightPanel, textArea } from './main'
 import { TreeNode, TreeChildren } from './config'
 
 let bot: Wechaty
@@ -12,6 +12,7 @@ const filePath = join('data', 'files')
 let contacts: Contact[]
 let friends: Contact[]
 let rooms: Room[]
+let curChat: Wechaty | Contact | Room
 const messages: Message[] = []
 const nameOf: Map<Contact | Room, string> = new Map()
 const membersByRoom: Map<Room, Contact[]> = new Map()
@@ -67,6 +68,7 @@ function onLogin (user: Contact) {
   msgConsole.setContent('')
   msgConsole.log(`${user.name()} login`)
   bot.say('Wechaty login!').catch(console.error)
+  curChat = bot
 }
 
 // when login complete, get all friend/room then display on the leftPanel
@@ -151,7 +153,9 @@ export function startBot (args: any) {
 
 leftPanel.on('select', async (node: TreeNode) => {
   const real = node.real
-  msgConsole.setContent(`与 ${node.name} 的对话`)
+  curChat = real
+  msgConsole.setLabel(`与 ${node.name} 的对话`)
+  msgConsole.setContent('')
   rightPanel.setContent('')
   const msgs = messages.filter(m =>
     (m.room() || m.talker()) === real || (m.room() || m.to()) === real
@@ -171,4 +175,9 @@ leftPanel.on('select', async (node: TreeNode) => {
     rightPanel.setData({})
   }
   screen.render()
+})
+
+textArea.key('enter', () => {
+  curChat.say(textArea.value).catch(console.error)
+  textArea.clearValue()
 })
