@@ -33,7 +33,7 @@ async function main (args: any): Promise<number> {
   try {
     startBot(args)
   } catch (e) {
-    log.error(e)
+    log.error(e as string)
     return 1
   }
   return 0
