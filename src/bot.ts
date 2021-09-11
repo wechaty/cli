@@ -134,7 +134,7 @@ async function onMessage (message: Message) {
     const folder = join(filePath, bot.userSelf().name())
     mkdirSync(folder, { recursive: true })
     const name = join(folder, file.name)
-    await file.toFile(name)
+    await file.toFile(name, true)
     msgConsole.log('Save file to: ' + name)
   }
   screen.render()
