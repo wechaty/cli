@@ -50,7 +50,7 @@ To test the app in external terminal, run `npm run debug` then start debugging w
 
 ## History
 
-### master v0.1 (Sep 12, 2021)
+### master v0.2 (Sep 12, 2021)
 
 1. ESM support
 
