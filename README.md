@@ -11,6 +11,25 @@ Terminal Command Line Client (CLI) for Wechaty
 
 ## Usage
 
+### Install from NPM
+
+```sh
+npm install wechaty-cli
+```
+
+Show version:
+
+```sh
+$ wechaty-cli --version
+0.2.1
+```
+
+Start Start CLI
+
+```sh
+wechaty-cli
+```
+
 ### Install from source
 
 ```sh
@@ -61,7 +80,7 @@ Init.
 ## Creators
 
 - [@chinggg](https://github.com/chinggg) - (刘靖) liuchinggg@gmail.com
-- [@huan](https://github.com/huan) - ([李卓桓](http://linkedin.com/in/zixia)) zixia@zixia.net
+- [@huan](https://github.com/huan) - ([李卓桓](https://wechaty.js.org/contributors/huan)) zixia@zixia.net
 
 ## Copyright & License
 
