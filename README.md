@@ -24,7 +24,7 @@ $ wechaty-cli --version
 0.2.1
 ```
 
-Start Start CLI
+Start CLI
 
 ```sh
 wechaty-cli
