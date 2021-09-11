@@ -1,13 +1,27 @@
-#!/usr/bin/env node --no-warnings --loader ts-node/esm
+import { join }       from 'path'
+import { mkdirSync }  from 'fs'
 
-import { join } from 'path'
-import { mkdirSync } from 'fs'
+import {
+  Contact,
+  Message,
+  PuppetModuleName,
+  Room,
+  ScanStatus,
+  Wechaty,
+}                   from 'wechaty'
+import qrTerminal   from 'qrcode-terminal'
 
-import { Contact, Message, PuppetModuleName, Room, ScanStatus, Wechaty } from 'wechaty'
-import qrTerminal from 'qrcode-terminal'
-
-import { screen, msgConsole, leftPanel, rightPanel, textArea } from './main.js'
-import type { TreeNode, TreeChildren } from './config.js'
+import {
+  screen,
+  msgConsole,
+  leftPanel,
+  rightPanel,
+  textArea,
+}                     from './ui.js'
+import type {
+  TreeNode,
+  TreeChildren,
+}                     from './config.js'
 
 let bot: Wechaty
 const filePath = join('data', 'files')

@@ -1,18 +1,16 @@
 #!/usr/bin/env node
 
 import { ArgumentParser }   from 'argparse'
-import updateNotifier  from 'update-notifier'
+import updateNotifier       from 'update-notifier'
 
 import {
   log,
   VERSION,
 }                       from '../src/config.js'
 import { packageJson }  from '../src/package-json.js'
-import { startBot }     from '../src/index.js'
+import { startBot }     from '../src/bot.js'
 
 function checkUpdate () {
-  // const pkgFile   = path.join(MODULE_ROOT, 'package.json')
-  // const pkg       = require(pkgFile)
   const notifier  = updateNotifier({
     pkg: packageJson as any,
     updateCheckInterval: 1000 * 60 * 60 * 24 * 7, // 1 week
@@ -42,15 +40,18 @@ function parseArguments () {
     description : 'Wechaty CLI',
   })
 
-  const version = VERSION
-  parser.add_argument('-v', '--version', { action: 'version', version })
-  parser.add_argument('-l', '--log',
-    {
-      default: 'info',
-      help: 'Log Level: silent, verbose, silly',
-    },
-  )
-  parser.add_argument('-n', '--name', { default: 'bot', help: 'name of bot instance' })
+  parser.add_argument('-v', '--version', {
+    action: 'version',
+    version: VERSION,
+  })
+  parser.add_argument('-l', '--log', {
+    default: 'info',
+    help: 'Log Level: silent, verbose, silly',
+  })
+  parser.add_argument('-n', '--name', {
+    default: 'bot',
+    help: 'name of bot instance',
+  })
   return parser.parse_args()
 }
 
