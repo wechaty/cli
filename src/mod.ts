@@ -1,4 +1,4 @@
-import { VERSION } from './version'
+import { VERSION } from './config.js'
 
 export {
   VERSION,

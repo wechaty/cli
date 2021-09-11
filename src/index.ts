@@ -1,10 +1,13 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env node --no-warnings --loader ts-node/esm
+
 import { join } from 'path'
 import { mkdirSync } from 'fs'
-import { Contact, Message, Room, ScanStatus, Wechaty } from 'wechaty'
-import { generate } from 'qrcode-terminal'
-import { screen, msgConsole, leftPanel, rightPanel, textArea } from './main'
-import { TreeNode, TreeChildren } from './config'
+
+import { Contact, Message, PuppetModuleName, Room, ScanStatus, Wechaty } from 'wechaty'
+import qrTerminal from 'qrcode-terminal'
+
+import { screen, msgConsole, leftPanel, rightPanel, textArea } from './main.js'
+import type { TreeNode, TreeChildren } from './config.js'
 
 let bot: Wechaty
 const filePath = join('data', 'files')
@@ -51,7 +54,7 @@ function onLogout (user: Contact) {
 
 function onScan (qrcode: string, status: ScanStatus) {
   if (status === ScanStatus.Waiting || status === ScanStatus.Timeout) {
-    generate(qrcode, { small: true }, (asciiart: string) => msgConsole.add(asciiart))
+    qrTerminal.generate(qrcode, { small: true }, (asciiart: string) => msgConsole.add(asciiart))
     msgConsole.log('Scan QR Code to login, status:' + ScanStatus[status])
     const qrcodeImageUrl = [
       'https://wechaty.js.org/qrcode/',
@@ -125,7 +128,13 @@ async function onMessage (message: Message) {
 
 export function startBot (args: any) {
   msgConsole.log('Initing...')
-  bot = new Wechaty({ name: args.name })
+
+  const puppet = process.env['WECHATY_PUPPET'] || 'wechaty-puppet-wechat'
+
+  bot = new Wechaty({
+    name: args.name,
+    puppet: puppet as PuppetModuleName,
+  })
     .on('logout', user => onLogout(user))
     .on('scan', (qrcode, status) => onScan(qrcode, status))
     .on('login', user => onLogin(user))
@@ -152,7 +161,7 @@ export function startBot (args: any) {
 }
 
 leftPanel.on('select', async (node: TreeNode) => {
-  const real = node.real
+  const real = node['real']
   curChat = real
   msgConsole.setLabel(`与 ${node.name} 的对话`)
   msgConsole.setContent('')

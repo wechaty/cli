@@ -1,21 +1,29 @@
-import path from 'path'
+// import path from 'path'
 
-export { log } from 'brolog'
+import { log } from 'brolog'
 
-export function parentDirectory (): string {     // export for test
-  const parentDir = __dirname.split(path.sep)   // [... 'node_modules', 'facenet', 'dist', 'src']
-    .slice(-2, -1)[0] // 'dist'
-  return parentDir
-}
+import { packageJson } from './package-json.js'
 
-export const MODULE_ROOT = parentDirectory() === 'dist'
-  ? path.join(__dirname, '/../..')
-  : path.join(__dirname, '/..')
+// export function parentDirectory (): string {     // export for test
+//   const parentDir = __dirname.split(path.sep)   // [... 'node_modules', 'facenet', 'dist', 'src']
+//     .slice(-2, -1)[0] // 'dist'
+//   return parentDir
+// }
 
-const packageFile = path.join(MODULE_ROOT, 'package.json')
-export const VERSION = require(packageFile).version
+// export const MODULE_ROOT = parentDirectory() === 'dist'
+//   ? path.join(__dirname, '/../..')
+//   : path.join(__dirname, '/..')
 
-export interface TreeNode {
+// const packageFile = path.join(MODULE_ROOT, 'package.json')
+// export const VERSION = require(packageFile).version
+
+const VERSION = packageJson.version || '0.0.0'
+
+/* eslint-disable no-use-before-define */
+
+type TreeChildren = Record<string, TreeNode>
+
+interface TreeNode {
   name?: string,
   children?: TreeChildren | ((node: TreeNode) => TreeChildren | Promise<TreeChildren>),
   childrenContent?: TreeChildren,
@@ -24,4 +32,11 @@ export interface TreeNode {
   [custom: string]: any
 }
 
-export type TreeChildren = Record<string, TreeNode>
+export type {
+  TreeNode,
+  TreeChildren,
+}
+export {
+  log,
+  VERSION,
+}
