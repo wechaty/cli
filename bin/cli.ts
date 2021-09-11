@@ -1,22 +1,20 @@
-#!/usr/bin/env node
+#!/usr/bin/env -S node --no-warnings --loader ts-node/esm
 
-import path            from 'path'
 import { ArgumentParser }   from 'argparse'
 import updateNotifier  from 'update-notifier'
 
 import {
   log,
-  MODULE_ROOT,
   VERSION,
-}               from '../src/config'
-
-import { startBot } from '../src/index'
+}                       from '../src/config.js'
+import { packageJson }  from '../src/package-json.js'
+import { startBot }     from '../src/index.js'
 
 function checkUpdate () {
-  const pkgFile   = path.join(MODULE_ROOT, 'package.json')
-  const pkg       = require(pkgFile)
+  // const pkgFile   = path.join(MODULE_ROOT, 'package.json')
+  // const pkg       = require(pkgFile)
   const notifier  = updateNotifier({
-    pkg,
+    pkg: packageJson as any,
     updateCheckInterval: 1000 * 60 * 60 * 24 * 7, // 1 week
   })
   notifier.notify()

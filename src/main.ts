@@ -1,11 +1,12 @@
-import * as blessed from 'blessed'
-import * as contrib from 'blessed-contrib'
+import blessed from 'blessed'
+import contrib from 'blessed-contrib'
+
 import {
   screenOption,
   scrollOption,
   navigateOption,
   listStyle,
-}                   from './options'
+}                   from './options.js'
 
 const screen = blessed.screen(screenOption)
 screen.title = 'wechaty-cli'
