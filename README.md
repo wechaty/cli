@@ -4,6 +4,7 @@
 [![NPM Version](https://badge.fury.io/js/wechaty-cli.svg)](https://badge.fury.io/js/wechaty-cli)
 [![npm (tag)](https://img.shields.io/npm/v/wechaty-cli/next.svg)](https://www.npmjs.com/package/wechaty-cli?activeTab=versions)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-blue.svg)](https://www.typescriptlang.org/)
+[![ES Modules](https://img.shields.io/badge/ES-Modules-brightgreen)](https://github.com/Chatie/tsconfig/issues/16)
 
 ![wechaty-cli](docs/images/terminal-wechaty.webp)
 
