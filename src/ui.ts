@@ -40,7 +40,12 @@ const textArea: blessed.Widgets.TextareaElement = grid.set(10, 3, 2, 7, blessed.
   mouse: true,
 })
 
-const rightPanel = grid.set(0, 10, 12, 2, contrib.tree, { label: 'Options' })
+const rightPanel: contrib.Widgets.TreeElement = grid.set(0, 10, 12, 2, contrib.tree, { 
+  label: 'Profile',
+  mouse: true,
+  style: listStyle,
+  vi: true,
+ })
 
 screen.key(['C-c', 'C-d'], () => {
   return process.exit(0)
