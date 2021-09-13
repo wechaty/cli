@@ -6,7 +6,7 @@ import {
   scrollOption,
   navigateOption,
   listStyle,
-}                   from './options.js'
+}                   from './config.js'
 
 const screen = blessed.screen(screenOption)
 screen.title = 'wechaty-cli'
