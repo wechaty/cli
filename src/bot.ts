@@ -17,6 +17,7 @@ import {
   leftPanel,
   rightPanel,
   textArea,
+  menuBar,
 }                     from './ui.js'
 import type {
   TreeNode,
@@ -121,7 +122,6 @@ async function onReady () {
   leftPanel.setData(panelRoot)
   msgConsole.log(`Totally ${rooms.length} rooms`)
 
-  leftPanel.focus()
   screen.render()
 }
 
@@ -172,6 +172,7 @@ export function startBot (args: any) {
     })
 
   screen.render()
+  menuBar.focus()
 }
 
 leftPanel.on('select', async (node: TreeNode) => {

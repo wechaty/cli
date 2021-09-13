@@ -39,15 +39,23 @@ export const screenOption = {
 
 export const listStyle = {
   // focus: {
-  //   bg: 'red',
+  //   border: {
+  //     bg: 'red',
+  //   },
   // },
   item: {
+    focus: {
+      bg: 'green',
+    },
     hover: {
       bg: 'blue',
     },
   },
+  prefix: {
+    fg: 'yellow',
+  },
   selected: {
-    bg: 'blue',
+    bg: 'red',
     bold: true,
   },
 }

@@ -26,7 +26,7 @@ const leftPanel: contrib.Widgets.TreeElement = grid.set(0, 0, 12, 3, contrib.tre
   vi: true,
 })
 
-const msgConsole: contrib.Widgets.LogElement = grid.set(0, 3, 10, 7, blessed.log, {
+const msgConsole: contrib.Widgets.LogElement = grid.set(0, 3, 9, 7, blessed.log, {
   fg: 'green',
   label: 'Messages',
   selectedFg: 'green',
@@ -34,7 +34,7 @@ const msgConsole: contrib.Widgets.LogElement = grid.set(0, 3, 10, 7, blessed.log
   ...scrollOption,
 })
 
-const textArea: blessed.Widgets.TextareaElement = grid.set(10, 3, 2, 7, blessed.textarea, {
+const textArea: blessed.Widgets.TextareaElement = grid.set(9, 3, 2, 7, blessed.textarea, {
   fg: 'blue',
   inputOnFocus: true,
   mouse: true,
@@ -45,6 +45,24 @@ const rightPanel: contrib.Widgets.TreeElement = grid.set(0, 10, 12, 2, contrib.t
   mouse: true,
   style: listStyle,
   vi: true,
+})
+
+const menuBar: blessed.Widgets.ListbarElement = grid.set(11, 3, 1, 7, blessed.listbar, {
+  commands: {
+    contact: {
+      callback: () => leftPanel.focus(),
+      keys: ['c'],
+    },
+    input: {
+      callback: () => textArea.focus(),
+      keys: ['i'],
+    },
+    profile: {
+      callback: () => rightPanel.focus(),
+      keys: ['p'],
+    },
+  },
+  style: listStyle,
 })
 
 screen.key(['C-c', 'C-d'], () => {
@@ -61,4 +79,5 @@ export {
   leftPanel,
   rightPanel,
   textArea,
+  menuBar,
 }
