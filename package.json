@@ -21,7 +21,7 @@
     "dist": "npm-run-all clean build dist:commonjs",
     "build": "tsc && tsc -p tsconfig.cjs.json",
     "dist:commonjs": "jq -n \"{ type: \\\"commonjs\\\" }\" > dist/cjs/package.json",
-    "debug": "node --nolazy --inspect-brk=9229 -r ts-node/register bin/cli.ts",
+    "debug": "cross-env NODE_OPTIONS=\"--no-warnings --loader=ts-node/esm\" node --nolazy --inspect-brk=9229 bin/cli.ts",
     "start": "cross-env NODE_OPTIONS=\"--no-warnings --loader=ts-node/esm\" node bin/cli.ts",
     "lint": "npm-run-all lint:es lint:ts lint:md",
     "lint:md": "markdownlint README.md",
@@ -76,6 +76,7 @@
     "tstest": "^0.5.16",
     "type-fest": "^2.3.2",
     "typescript": "^4.4.2",
+    "wechaty-puppet-padlocal": "^0.4.2",
     "wechaty-puppet-wechat": "^0.29.7"
   },
   "publishConfig": {
