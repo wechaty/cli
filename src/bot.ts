@@ -63,6 +63,37 @@ async function recordify (a: Contact[] | Room[]) {
   return record
 }
 
+export async function refresh () {
+  contacts = await bot.Contact.findAll()
+  friends = contacts.filter(x => x.type() !== Contact.Type.Official)
+  friendRecord = await recordify(friends)
+  friendRoot = {
+    children: friendRecord,
+    extended: true,
+    name: 'Friends',
+    real: bot.userSelf(),
+  }
+  leftPanel.setData(friendRoot)
+  msgConsole.log(`Totally ${friends.length} friends`)
+
+  rooms = await bot.Room.findAll()
+  roomRecord = await recordify(rooms)
+  roomRoot = {
+    children: roomRecord,
+    extended: true,
+    name: 'Rooms',
+    real: bot.userSelf(),
+  }
+  panelRoot = {
+    children: { Friends: friendRoot, Rooms: roomRoot },
+    extended: true,
+    name: bot.userSelf().name(),
+    real: bot.userSelf(),
+  }
+  leftPanel.setData(panelRoot)
+  msgConsole.log(`Totally ${rooms.length} rooms`)
+}
+
 function onLogout (user: Contact) {
   msgConsole.log(`${user} logout`)
 }
@@ -92,36 +123,7 @@ function onLogin (user: Contact) {
 // when login complete, get all friend/room then display on the leftPanel
 async function onReady () {
   bot.say('Wechaty ready!').catch(console.error)
-
-  contacts = await bot.Contact.findAll()
-  friends = contacts.filter(x => x.type() !== Contact.Type.Official)
-  friendRecord = await recordify(friends)
-  friendRoot = {
-    children: friendRecord,
-    extended: true,
-    name: 'Friends',
-    real: bot.userSelf(),
-  }
-  leftPanel.setData(friendRoot)
-  msgConsole.log(`Totally ${friends.length} friends`)
-
-  rooms = await bot.Room.findAll()
-  roomRecord = await recordify(rooms)
-  roomRoot = {
-    children: roomRecord,
-    extended: true,
-    name: 'Rooms',
-    real: bot.userSelf(),
-  }
-  panelRoot = {
-    children: { Friends: friendRoot, Rooms: roomRoot },
-    extended: true,
-    name: bot.userSelf().name(),
-    real: bot.userSelf(),
-  }
-  leftPanel.setData(panelRoot)
-  msgConsole.log(`Totally ${rooms.length} rooms`)
-
+  await refresh()
   screen.render()
 }
 

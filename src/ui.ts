@@ -1,5 +1,6 @@
 import blessed from 'blessed'
 import contrib from 'blessed-contrib'
+import { refresh } from './bot.js'
 
 import {
   screenOption,
@@ -60,6 +61,10 @@ const menuBar: blessed.Widgets.ListbarElement = grid.set(11, 3, 1, 7, blessed.li
     profile: {
       callback: () => rightPanel.focus(),
       keys: ['p'],
+    },
+    refresh: {
+      callback: refresh,
+      keys: ['r'],
     },
   },
   style: listStyle,
