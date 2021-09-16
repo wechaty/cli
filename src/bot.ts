@@ -23,6 +23,7 @@ import type {
   TreeNode,
   TreeChildren,
 }                     from './config.js'
+import { reverseObject } from './utils.js'
 
 let bot: Wechaty
 const filePath = join('data', 'files')
@@ -34,11 +35,14 @@ let curChat: Wechaty | Contact | Room
 const messages: Message[] = []
 const nameOf: Map<Contact | Room, string> = new Map()
 const membersByRoom: Map<Room, Contact[]> = new Map()
+// const activers: Map<Contact | Room, TreeNode> = new Map()
 let friendRecord: TreeChildren
 let roomRecord: TreeChildren
+let activeRecord: TreeChildren = {}
 let friendRoot: TreeNode
 let roomRoot: TreeNode
 let panelRoot: TreeNode
+let activeRoot: TreeNode
 let memberRoot: TreeNode
 
 async function displayed (s: Contact | Room) {
@@ -49,7 +53,7 @@ async function displayed (s: Contact | Room) {
   }
 }
 
-async function recordify (a: Contact[] | Room[]) {
+async function recordify (a: (Contact | Room)[]) {
   const record: TreeChildren = {}
   for (const x of a) {
     if (!nameOf.has(x)) nameOf.set(x, await displayed(x))
@@ -94,6 +98,19 @@ export async function refresh () {
   msgConsole.log(`Totally ${rooms.length} rooms`)
 }
 
+export async function activy(activer: Contact | Room) {
+  const newcord = await recordify([activer]);
+  // Later properties overwrite earlier properties with the same name
+  activeRecord = {...activeRecord, ...newcord}
+  activeRoot = {
+    children: reverseObject(activeRecord),
+    extended: true,
+    name: 'Active Chats',
+    real: bot.userSelf(),
+  }
+  rightPanel.setData(activeRoot)
+}
+
 function onLogout (user: Contact) {
   msgConsole.log(`${user} logout`)
 }
@@ -129,6 +146,8 @@ async function onReady () {
 
 async function onMessage (message: Message) {
   const type = message.type()
+  const source = message.room() || message.talker()
+  activy(source)
   msgConsole.log(message.toString())
   messages.push(message)
   if (type !== Message.Type.Text) {
@@ -198,7 +217,7 @@ leftPanel.on('select', async (node: TreeNode) => {
     }
     rightPanel.setData(memberRoot)
   } else {
-    rightPanel.setData({})
+    // rightPanel.setData({})
   }
   screen.render()
 })
