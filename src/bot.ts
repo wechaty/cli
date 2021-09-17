@@ -18,6 +18,7 @@ import {
   rightPanel,
   textArea,
   menuBar,
+  memberTree,
 }                     from './ui.js'
 import type {
   TreeNode,
@@ -109,6 +110,24 @@ export async function activy(activer: Contact | Room) {
     real: bot.userSelf(),
   }
   rightPanel.setData(activeRoot)
+}
+
+export async function showMember () {
+  if (curChat !== memberRoot['real'] && curChat instanceof Room) {
+    if (!membersByRoom.has(curChat)) membersByRoom.set(curChat, await curChat.memberAll())
+    const members = membersByRoom.get(curChat)!
+    const memberRecord = await recordify(members)
+    memberRoot = {
+      children: memberRecord,
+      extended: true,
+      name: nameOf.get(curChat) + ' 的成员',
+      real: curChat,
+    }
+    memberTree.setData(memberRoot)
+  }
+  memberTree.toggle()
+  if (!memberTree.hidden) memberTree.focus()
+  screen.render()
 }
 
 function onLogout (user: Contact) {
