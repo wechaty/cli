@@ -42,7 +42,7 @@ const textArea: blessed.Widgets.TextareaElement = grid.set(9, 3, 2, 7, blessed.t
 })
 
 const rightPanel: contrib.Widgets.TreeElement = grid.set(0, 10, 12, 2, contrib.tree, {
-  label: 'Profile',
+  label: 'Active Chats',
   mouse: true,
   style: listStyle,
   vi: true,
@@ -50,6 +50,10 @@ const rightPanel: contrib.Widgets.TreeElement = grid.set(0, 10, 12, 2, contrib.t
 
 const menuBar: blessed.Widgets.ListbarElement = grid.set(11, 3, 1, 7, blessed.listbar, {
   commands: {
+    active: {
+      callback: () => rightPanel.focus(),
+      keys: ['a'],
+    },
     contact: {
       callback: () => leftPanel.focus(),
       keys: ['c'],
@@ -61,10 +65,6 @@ const menuBar: blessed.Widgets.ListbarElement = grid.set(11, 3, 1, 7, blessed.li
     member: {
       callback: showMember,
       keys: ['m'],
-    },
-    profile: {
-      callback: () => rightPanel.focus(),
-      keys: ['p'],
     },
     refresh: {
       callback: refresh,

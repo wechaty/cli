@@ -1,6 +1,4 @@
-export function reverseObject(obj: any) {
-	const newkeys = Object.keys(obj).reverse()
-	const newobj: any = {}
-	newkeys.forEach(k => newobj[k] = obj[k])
-	return newobj;
+export function reverseObject (obj: any): any {
+  const entries = Object.entries(obj).reverse()
+  return Object.fromEntries(entries)
 }

@@ -36,7 +36,6 @@ let curChat: Wechaty | Contact | Room
 const messages: Message[] = []
 const nameOf: Map<Contact | Room, string> = new Map()
 const membersByRoom: Map<Room, Contact[]> = new Map()
-// const activers: Map<Contact | Room, TreeNode> = new Map()
 let friendRecord: TreeChildren
 let roomRecord: TreeChildren
 let activeRecord: TreeChildren = {}
@@ -44,7 +43,7 @@ let friendRoot: TreeNode
 let roomRoot: TreeNode
 let panelRoot: TreeNode
 let activeRoot: TreeNode
-let memberRoot: TreeNode
+let memberRoot: TreeNode = {}
 
 async function displayed (s: Contact | Room) {
   if (s instanceof Contact) {
@@ -99,10 +98,10 @@ export async function refresh () {
   msgConsole.log(`Totally ${rooms.length} rooms`)
 }
 
-export async function activy(activer: Contact | Room) {
-  const newcord = await recordify([activer]);
-  // Later properties overwrite earlier properties with the same name
-  activeRecord = {...activeRecord, ...newcord}
+export async function activy (activer: Contact | Room) {
+  const newcord = await recordify([activer])
+  // Later properties should overwrite earlier properties with the same name
+  activeRecord = { ...activeRecord, ...newcord }
   activeRoot = {
     children: reverseObject(activeRecord),
     extended: true,
@@ -165,8 +164,8 @@ async function onReady () {
 
 async function onMessage (message: Message) {
   const type = message.type()
-  const source = message.room() || message.talker()
-  activy(source)
+  const actor = message.room() || [message.talker(), message.listener()].filter(x => x !== bot.userSelf())[0]
+  activy(actor!).catch(console.error)
   msgConsole.log(message.toString())
   messages.push(message)
   if (type !== Message.Type.Text) {
@@ -215,31 +214,20 @@ export function startBot (args: any) {
   menuBar.focus()
 }
 
-leftPanel.on('select', async (node: TreeNode) => {
+async function onSelectChat (node: TreeNode) {
   const real = node['real']
   curChat = real
   msgConsole.setLabel(`与 ${node.name} 的对话`)
   msgConsole.setContent('')
   rightPanel.setContent('')
   const msgs = messages.filter(m =>
-    (m.room() || m.talker()) === real || (m.room() || m.to()) === real
+    (m.room() || m.talker()) === real || (m.room() || m.listener()) === real
   )
   msgs.forEach(m => msgConsole.log(m.toString()))
-  if (real instanceof Room) {
-    if (!membersByRoom.has(real)) membersByRoom.set(real, await real.memberAll())
-    const members = membersByRoom.get(real)!
-    const memberRecord = await recordify(members)
-    memberRoot = {
-      children: memberRecord,
-      extended: true,
-      name: 'members',
-    }
-    rightPanel.setData(memberRoot)
-  } else {
-    // rightPanel.setData({})
-  }
-  screen.render()
-})
+}
+
+leftPanel.on('select', onSelectChat)
+rightPanel.on('select', onSelectChat)
 
 textArea.key('enter', () => {
   curChat.say(textArea.value).catch(console.error)
