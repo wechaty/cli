@@ -71,6 +71,7 @@ const menuBar: blessed.Widgets.ListbarElement = grid.set(11, 3, 1, 7, blessed.li
       keys: ['r'],
     },
   },
+  mouse: true,
   style: listStyle,
 })
 
