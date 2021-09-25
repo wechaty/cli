@@ -83,7 +83,7 @@ const memberTree: contrib.Widgets.TreeElement = grid.set(1, 3, 9, 6, contrib.tre
   vi: true,
 })
 
-screen.key(['C-c', 'C-d'], () => {
+screen.key(['C-c'], () => {
   return process.exit(0)
 })
 
