@@ -109,6 +109,7 @@ export async function activy (activer: Contact | Room) {
     real: bot.userSelf(),
   }
   rightPanel.setData(activeRoot)
+  return newcord
 }
 
 export async function showMember () {
@@ -228,6 +229,12 @@ async function onSelectChat (node: TreeNode) {
 
 leftPanel.on('select', onSelectChat)
 rightPanel.on('select', onSelectChat)
+memberTree.on('select', async (node: TreeNode) => {
+  if (friends.includes(node['real'])) {
+    memberTree.toggle()
+    leftPanel.emit('select', node)
+  }
+})
 
 textArea.key('enter', () => {
   curChat.say(textArea.value).catch(console.error)
