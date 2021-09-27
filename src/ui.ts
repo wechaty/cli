@@ -1,6 +1,6 @@
 import blessed from 'blessed'
 import contrib from 'blessed-contrib'
-import { refresh, showMember } from './bot.js'
+import { refresh, showMember, showProfile } from './bot.js'
 
 import {
   screenOption,
@@ -66,6 +66,10 @@ const menuBar: blessed.Widgets.ListbarElement = grid.set(11, 3, 1, 7, blessed.li
       callback: showMember,
       keys: ['m'],
     },
+    profile: {
+      callback: showProfile,
+      keys: ['p'],
+    },
     refresh: {
       callback: refresh,
       keys: ['r'],
@@ -81,6 +85,12 @@ const memberTree: contrib.Widgets.TreeElement = grid.set(1, 3, 9, 6, contrib.tre
   mouse: true,
   style: listStyle,
   vi: true,
+})
+
+const profileBox: blessed.Widgets.TextElement = grid.set(1, 3, 9, 6, blessed.text, {
+  hidden: true,
+  label: 'profile',
+  style: listStyle,
 })
 
 screen.key(['C-c'], () => {
@@ -99,4 +109,5 @@ export {
   textArea,
   menuBar,
   memberTree,
+  profileBox,
 }

@@ -19,6 +19,7 @@ import {
   textArea,
   menuBar,
   memberTree,
+  profileBox,
 }                     from './ui.js'
 import type {
   TreeNode,
@@ -128,6 +129,26 @@ export async function showMember () {
   memberTree.toggle()
   if (!memberTree.hidden) memberTree.focus()
   screen.render()
+}
+
+export async function showProfile () {
+  let text = ''
+  if (curChat instanceof Contact) {
+    text = `
+       name: ${nameOf.get(curChat)}
+       id: ${curChat.id}
+       gender: ${curChat.gender()}
+       city: ${curChat.city() || curChat.province()}
+    `
+  } else if (curChat instanceof Room) {
+    text = `
+       name: ${nameOf.get(curChat)}
+       owner: ${curChat.owner()}
+       announce: ${curChat.owner()}
+    `
+  }
+  profileBox.setContent(text)
+  profileBox.toggle()
 }
 
 function onLogout (user: Contact) {
