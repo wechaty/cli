@@ -33,7 +33,7 @@ const filePath = join('data', 'files')
 let contacts: Contact[]
 let friends: Contact[]
 let rooms: Room[]
-let curChat: Wechaty | Contact | Room
+let curChat: Contact | Room
 const messages: Message[] = []
 const nameOf: Map<Contact | Room, string> = new Map()
 const membersByRoom: Map<Room, Contact[]> = new Map()
@@ -136,7 +136,7 @@ export async function showProfile () {
   let text = ''
   if (curChat instanceof Contact) {
     text = `
-       name: ${nameOf.get(curChat)}
+       name: ${nameOf.get(curChat) || await displayed(curChat)}
        id: ${curChat.id}
        gender: ${curChat.gender()}
        city: ${curChat.city() || curChat.province()}
@@ -175,7 +175,7 @@ function onLogin (user: Contact) {
   msgConsole.setContent('')
   msgConsole.log(`${user.name()} login`)
   bot.say('Wechaty login!').catch(console.error)
-  curChat = bot
+  curChat = bot.userSelf()
 }
 
 // when login complete, get all friend/room then display on the leftPanel
