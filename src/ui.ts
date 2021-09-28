@@ -93,8 +93,22 @@ const profileBox: blessed.Widgets.TextElement = grid.set(1, 3, 9, 6, blessed.tex
   style: listStyle,
 })
 
+const prompty: blessed.Widgets.PromptElement = grid.set(4, 4, 4, 4, blessed.prompt, {
+  hidden: true,
+  ...navigateOption,
+})
+
 screen.key(['C-c'], () => {
   return process.exit(0)
+})
+
+leftPanel.rows.key('/', () => {
+  const inner = leftPanel.rows
+  prompty.input('Search:', '', (err, value) => {
+    if (err) return
+    const index = inner.fuzzyFind(value) as any as number
+    inner.select(index)
+  })
 })
 
 screen.key('tab', () => screen.focusNext())
