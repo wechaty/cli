@@ -114,6 +114,8 @@ export async function activy (activer: Contact | Room) {
 }
 
 export async function showMember () {
+  memberTree.toggle()
+  if (memberTree.hidden) return
   if (curChat !== memberRoot['real'] && curChat instanceof Room) {
     if (!membersByRoom.has(curChat)) membersByRoom.set(curChat, await curChat.memberAll())
     const members = membersByRoom.get(curChat)!
@@ -126,8 +128,7 @@ export async function showMember () {
     }
     memberTree.setData(memberRoot)
   }
-  memberTree.toggle()
-  if (!memberTree.hidden) memberTree.focus()
+  memberTree.focus()
   screen.render()
 }
 
