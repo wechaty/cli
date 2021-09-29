@@ -189,7 +189,7 @@ async function onMessage (message: Message) {
   const type = message.type()
   const actor = message.room() || [message.talker(), message.listener()].filter(x => x !== bot.userSelf())[0]
   if (actor) activy(actor).catch(console.error)
-  msgConsole.log(message.toString())
+  if (curChat === actor) msgConsole.log(message.toString())
   messages.push(message)
   if (type !== Message.Type.Text) {
     const file = await message.toFileBox()
