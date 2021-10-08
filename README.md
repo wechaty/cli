@@ -48,6 +48,16 @@ docker build -t wechaty-cli .  # this command needs only to be executed once
 docker run --rm -it wechaty-cli  # use this command to run wechaty-cli at any time!
 ```
 
+### Different IM support
+
+The Wechaty community builds separate RPA modules called [Wechaty Puppet](https://wechaty.js.org/docs/puppet-providers/) for different instant messaging (IM) systems (such as WeChat and Whatsapp). [wechaty-puppet-wechat](https://github.com/wechaty/wechaty-puppet-wechat) is used by default and you can specify wechaty puppet by using the following command to chat on different IM system.
+
+```sh
+npm install wechaty-puppet-NAME
+export WECHATY_PUPPET=wechaty-puppet-NAME
+# some puppet requires a token to be set
+```
+
 ### Debug in VS Code
 
 Debugging with configuration "Launch via NPM", the app will run immediately in the integrated terminal.
