@@ -1,6 +1,6 @@
 {
   "name": "wechaty-cli",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "description": "Command-line Client for Wechaty, powered by blessed",
   "type": "module",
   "exports": {
