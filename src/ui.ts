@@ -50,7 +50,7 @@ const rightPanel: contrib.Widgets.TreeElement = grid.set(0, 10, 12, 2, contrib.t
 
 const menuBar: blessed.Widgets.ListbarElement = grid.set(11, 3, 1, 7, blessed.listbar, {
   commands: {
-    active: {
+    activer: {
       callback: () => rightPanel.focus(),
       keys: ['a'],
     },
