@@ -71,6 +71,10 @@ To test the app in external terminal, run `npm run debug` then start debugging w
 - [Summer of Wechaty](https://github.com/wechaty/summer-of-wechaty/issues/80)
 - [Wechaty API](https://wechaty.js.org/docs/api)
 
+### Similar Projects
+
+- [WeChat in Terminal (微信终端版)](https://github.com/LingDong-/wechit)
+
 ### Related Projects
 
 - [blessed](https://github.com/chjj/blessed#documentation)
