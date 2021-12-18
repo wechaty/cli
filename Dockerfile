@@ -37,8 +37,7 @@ RUN sed -i "s/archive.ubuntu./mirrors.cloud.tencent./g" /etc/apt/sources.list &&
 
 WORKDIR /cli
 COPY package*.json ./
-RUN npm config set registry https://registry.npm.taobao.org/ && \
-    npm install
+RUN npm install
 COPY . .
 
 VOLUME [ "/workdir" ]
